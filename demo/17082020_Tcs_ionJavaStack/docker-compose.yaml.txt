@@ -1,0 +1,30 @@
+version: '3'
+services:
+  mysql:
+    restart: always
+    container_name: docker-mysql
+    image: mysql
+    environment:
+      MYSQL_DATABASE: studentdata
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: "/usr/bin/mysql --user=root --password=root --execute \"SHOW DATABASES;\""
+      interval: 2s
+      timeout: 20s
+      retries: 1
+  spring_app:
+    restart: on-failure
+    container_name: docker-student_register
+    image: loveforever123/springapp:v1
+    expose:
+      - "2703"
+    ports:
+      - 2703:2703
+    environment:
+      WAIT_HOSTS: mysql:3306
+    depends_on:
+      - mysql
